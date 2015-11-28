@@ -1,0 +1,27 @@
+# EditorConfig: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# Set default charset
+[*.{js,json,xhtml,html,css,txt,xml,scss,yml,rb}]
+charset = utf-8
+
+# 4 space indentation
+[*.{js,json,xhtml,html,css,xml,scss,yml,rb}]
+indent_style = space
+indent_size = 4
+
+# 2 space indentation
+[*.{json}]
+indent_style = space
+indent_size = 2
+
+# Trim trailing whitespace
+[*]
+trim_trailing_whitespace = true

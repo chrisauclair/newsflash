@@ -1,0 +1,19 @@
+{
+  "name": "newsflash",
+  "version": "1.0.0",
+  "description": "CS50 final project news aggregator.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisauclair/newsflash.git"
+  },
+  "author": "Christopher Auclair",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chrisauclair/newsflash/issues"
+  },
+  "homepage": "https://github.com/chrisauclair/newsflash#readme"
+}

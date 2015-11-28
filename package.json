@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/chrisauclair/newsflash/issues"
   },
-  "homepage": "https://github.com/chrisauclair/newsflash#readme"
+  "homepage": "https://github.com/chrisauclair/newsflash#readme",
+  "devDependencies": {
+    "express": "^4.13.3",
+    "mongoose": "^4.2.8"
+  }
 }

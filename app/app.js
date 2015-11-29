@@ -2,6 +2,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var router = require('./router');
+var Rss = require('./rss');
 
 var App = (function() {
 
@@ -25,6 +26,8 @@ var App = (function() {
 
     function onConnection() {
         console.log("connection established");
+        // trigger Rss feed reader
+        var rss = new Rss();
     }
 
     return {

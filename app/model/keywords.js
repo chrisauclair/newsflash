@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var keywordSchema = Schema({
-    keyword: String
+    keyword: { type: String, unique: true }
 });
 
 module.exports = mongoose.model('Keyword', keywordSchema);

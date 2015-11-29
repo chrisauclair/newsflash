@@ -1,21 +1,36 @@
 // load dependencies
 var express = require('express');
+var mongoose = require('mongoose');
 var router = require('./router');
 
-(function() {
-	var App = {
-		init: function() {
-			// initialize dependencies
-			var app = express();
+var App = (function() {
 
-			// determine port
-			var port = process.env.PORT || 8080;
+	var init = function() {
+		// initialize dependencies
+		var app = express();
 
-			// init app
-			app.use('/api', router);
-			app.listen(port);
-		}
+		// determine port
+		var port = process.env.PORT || 8080;
+
+		// init app
+		app.use('/api', router);
+		app.listen(port);
+
+        mongoose.connect('mongodb://localhost/test');
+
+        mongoose.connection
+            .on('error', console.error.bind(console, 'connection error:'))
+            .once('open', onConnection);
 	}
 
-	App.init();
+    function onConnection() {
+        console.log("connection established");
+    }
+
+    return {
+        init: init
+    }
+
 })();
+
+App.init();

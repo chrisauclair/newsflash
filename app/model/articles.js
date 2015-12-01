@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var articleSchema = Schema({
-    feed_id: { type: Number, ref: 'Feed' },
+    feed_id: { type: Schema.Types.ObjectId, ref: 'Feed' },
     url: {type: String, unique: true},
     title: String,
     summary: String,

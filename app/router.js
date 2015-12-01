@@ -37,18 +37,26 @@ router.route('/articles')
                         if(!feed) {
                             feed = new Feed();
                             feed.feed = req.body.feed;
+                            feed.articles = [];
                         }
                         feed.articles.push(article);
-                        feed.update({articles: feed.articles}, function(err, raw) {
+                        feed.update({articles: feed.articles, feed: feed.feed}, {upsert: true}, function(err, raw) {
                             if (err) {
                                 res.send(err);
                                 return;
                             }
-                        })
+
+                            article.update({feed_id: feed}, function(err, raw) {
+                                if (err) {
+                                    res.send(err);
+                                    return
+                                }
+
+                                res.send({message: 'article created'});
+                            });
+                        });
                     });
                 });
-
-                res.send({message: 'article created'});
             }
             else {
                 res.send({message: 'article already exists'});

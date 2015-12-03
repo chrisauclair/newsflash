@@ -14,6 +14,8 @@ module.exports = (function() {
                 Feed.findOneAndUpdate({feed: body.feed}, {$set: {feed: body.feed}}, {upsert: true, new: true}, function(err, res) {
                     if (err) return handleError(err, callback);
 
+                    article.feed_id = res;
+
                     article.save(function(err){
                         if (err) return handleError(err, callback);
 

@@ -9,6 +9,9 @@ var articleSchema = Schema({
     summary: String,
     // keywords: [{ type: Schema.Types.ObjectId, ref: 'Keyword'} ],
     location: String,
+    pubData: String,
+    content: String,
+    description: String,
     time : { type: Date, default: Date.now }
 });
 

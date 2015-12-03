@@ -35,6 +35,7 @@ var App = (function() {
         console.log("connection established");
         // trigger Rss feed reader
         var rss = new Rss();
+        rss.init();
     }
 
     return {

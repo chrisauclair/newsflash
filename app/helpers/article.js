@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var Article = require('../model/articles');
 var Feed = require('../model/feeds');
 var Keyword = require('../model/keywords');
@@ -8,26 +9,15 @@ module.exports = (function() {
             if (!article) {
 
                 var article = new Article();
-                article.url = body.url;
-
-                article.save(function(err) {
+                var feed = new Feed();
+                article = _.extend(article, body);
+                Feed.findOneAndUpdate({feed: body.feed}, {$set: {feed: body.feed}}, {upsert: true, new: true}, function(err, res) {
                     if (err) return handleError(err, callback);
 
-                    Feed.findOne({feed: body.feed}).exec().then(function(feed) {
-                        if(!feed) {
-                            feed = new Feed();
-                            feed.feed = body.feed;
-                            feed.articles = [];
-                        }
-                        feed.articles.push(article);
-                        feed.update({articles: feed.articles, feed: feed.feed}, {upsert: true}, function(err, raw) {
-                            if (err) return handleError(err, callback);
+                    article.save(function(err){
+                        if (err) return handleError(err, callback);
 
-                            article.update({feed_id: feed}, function(err, raw) {
-                                if (err) return handleError(err, callback);
-                                callback(null, {message: 'article created'});
-                            });
-                        });
+                        callback(null, {message: 'article saved'});
                     });
                 });
             }

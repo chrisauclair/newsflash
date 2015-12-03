@@ -1,9 +1,7 @@
 // load dependencies
 var express = require('express');
 var router = express.Router();
-var Article = require('./model/articles');
-var Feed = require('./model/feeds');
-var Keyword = require('./model/keywords');
+var articleHelpers = require('./helpers/article');
 
 // middleware for requests
 router.use(function(req, res, next) {
@@ -19,49 +17,16 @@ router.get('/', function(req, res) {
 // create/update article
 router.route('/articles')
     .post(function(req, res) {
-        console.log(req.body.url);
-
-        Article.findOne({url: req.body.url}).select('_id').exec().then(function(article) {
-            if (!article) {
-
-                var article = new Article();
-                article.url = req.body.url;
-
-                article.save(function(err) {
-                    if (err) {
-                        res.send(err);
-                        return;
-                    }
-
-                    Feed.findOne({feed: req.body.feed}).exec().then(function(feed) {
-                        if(!feed) {
-                            feed = new Feed();
-                            feed.feed = req.body.feed;
-                            feed.articles = [];
-                        }
-                        feed.articles.push(article);
-                        feed.update({articles: feed.articles, feed: feed.feed}, {upsert: true}, function(err, raw) {
-                            if (err) {
-                                res.send(err);
-                                return;
-                            }
-
-                            article.update({feed_id: feed}, function(err, raw) {
-                                if (err) {
-                                    res.send(err);
-                                    return
-                                }
-
-                                res.send({message: 'article created'});
-                            });
-                        });
-                    });
-                });
-            }
-            else {
-                res.send({message: 'article already exists'});
-            }
+        console.log("request: ", req.body);
+        articleHelpers.postArticle(req.body, function(err, response) {
+            console.log("callback: ", err, response);
+            if(err) return handleError(res, err);
+            res.send(response);
         });
     });
+
+function handleError(res, err) {
+    res.send(err);
+}
 
 module.exports = router;

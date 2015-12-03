@@ -41,10 +41,13 @@ module.exports = (function(){
         }
 
         var postItem = function(body) {
+            articleHelpers.postArticle(body, function(err, success) {
                 if (err) {
-                    console.log(err.message);
-                    next;
+                    console.log(err);
+                    return;
                 }
+
+                console.log(success);
             });
         }
 

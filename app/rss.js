@@ -8,9 +8,7 @@ module.exports = (function(){
     var feeds = ["http://www.npr.org/rss/rss.php?id=1009"];
 
     // TODO determine which params need to be passed to Rss object
-    var Rss = function(server) {
-
-        this.server = server;
+    var Rss = function() {
 
         var parseBody = function(err, body) {
             console.log("parse body");

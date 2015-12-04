@@ -14,7 +14,7 @@ module.exports = (function() {
 
         var processDocs = function() {
             var collection = articleDocs.map(function(item) {
-                return striptags(item.content);
+                return item.title + " " + striptags(item.content);
             });
 
             for (var i = 0, n = collection.length; i < n; i++) {

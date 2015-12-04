@@ -7,7 +7,10 @@ var all = require('node-promise').all;
 
 module.exports = (function(){
     // start with international news for now
-    var feeds = ["http://www.npr.org/rss/rss.php?id=1009"];
+    var feeds = [
+        "http://www.npr.org/rss/rss.php?id=1009",
+        "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"
+    ];
 
     // TODO determine which params need to be passed to Rss object
     var Rss = function() {

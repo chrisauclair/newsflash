@@ -11,6 +11,7 @@ module.exports = (function() {
         var keywordTotal = 4;
         var articleDocs;
         var collection = [];
+        var collectionKeywords = [];
 
         var processDocs = function() {
             var collection = articleDocs.map(function(item) {
@@ -18,8 +19,33 @@ module.exports = (function() {
             });
 
             for (var i = 0, n = collection.length; i < n; i++) {
-                getKeywords(collection[i], collection);
+                collectionKeywords.push(getKeywords(collection[i], collection));
             }
+
+            collectionKeywords = _.uniq(_.flattenDeep(collectionKeywords).map(function(item) {
+                return item.toLowerCase();
+            }));
+
+            collectionVectors = [];
+            for (var i = 0, n = collection.length; i < n; i++) {
+                var vectors = [];
+                var doc = collection[i];
+                // console.log(doc);
+                for (var j = 0, x = collectionKeywords.length; j < x; j++) {
+                    var keyword = collectionKeywords[j];
+                    var vector = 0;
+                    // console.log(Tfidf.frequency(keyword, doc));
+                    if (Tfidf.frequency(keyword, doc) > 0) {
+                       //  console.log("yep");
+                        vector = Tfidf.tfidf(keyword, doc, collection);
+                    }
+
+                    vectors.push(vector);
+                }
+                collectionVectors.push(vectors);
+            }
+
+            console.log(collectionVectors);
         };
 
         var getKeywords = function(doc, collection) {
@@ -38,6 +64,8 @@ module.exports = (function() {
             }
 
             var keywords = identifyKeywords(wordHash);
+
+            return keywords;
         };
 
         function identifyKeywords(wordHash) {

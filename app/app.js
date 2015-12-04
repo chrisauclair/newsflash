@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var router = require('./router');
 var Rss = require('./rss');
+var Aggregator = require('./aggregator');
 
 var App = (function() {
 
@@ -35,6 +36,7 @@ var App = (function() {
         console.log("connection established");
 
         // trigger Rss feed reader
+        /*
         var rss = new Rss();
         rss.init().then(function(res) {
             console.log(res);
@@ -42,6 +44,10 @@ var App = (function() {
         }, function(err) {
             console.log(err);
         });
+*/
+        var aggregator = new Aggregator();
+        aggregator.init();
+
     }
 
     return {

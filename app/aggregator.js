@@ -1,6 +1,7 @@
 // load dependencies
 var _ = require('lodash');
 var striptags = require('striptags');
+var similarity = require('compute-cosine-similarity');
 var Utils = require('./utils/utils');
 var Tfidf = require('./helpers/tfidf');
 var Article = require('./model/articles');
@@ -30,13 +31,10 @@ module.exports = (function() {
             for (var i = 0, n = collection.length; i < n; i++) {
                 var vectors = [];
                 var doc = collection[i];
-                // console.log(doc);
                 for (var j = 0, x = collectionKeywords.length; j < x; j++) {
                     var keyword = collectionKeywords[j];
                     var vector = 0;
-                    // console.log(Tfidf.frequency(keyword, doc));
                     if (Tfidf.frequency(keyword, doc) > 0) {
-                       //  console.log("yep");
                         vector = Tfidf.tfidf(keyword, doc, collection);
                     }
 
@@ -45,8 +43,22 @@ module.exports = (function() {
                 collectionVectors.push(vectors);
             }
 
-            console.log(collectionVectors);
+            var similarityVectors = getCollectionSimilarity(collectionVectors);
+
+            console.log(similarityVectors);
         };
+
+        var getCollectionSimilarity = function(collectionVectors) {
+            var length = collectionVectors.length;
+            var vectors = Utils.createNDimArray([length, length]);
+            for (var i = 0; i < length; i++) {
+                for (var j = 0; j < length; j++) {
+                    vectors[i][j] = similarity(collectionVectors[i], collectionVectors[j]);
+                }
+            }
+
+            return vectors;
+        }
 
         var getKeywords = function(doc, collection) {
             console.log("process article");

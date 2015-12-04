@@ -25,7 +25,7 @@ var ignore = [
 ];
 
 module.exports = (function() {
-    function f(word, content) {
+    var frequency = function(word, content) {
         var regex = new RegExp(word, 'gi');
         var count = (content.match(regex) || []).length;
 
@@ -33,7 +33,7 @@ module.exports = (function() {
     };
 
     function tf(word, content) {
-        var tf = f(word, content) / wordCount(content);
+        var tf = frequency(word, content) / wordCount(content);
 
         return tf;
     };
@@ -47,7 +47,7 @@ module.exports = (function() {
     function containing(word, docs) {
         var count = 0;
         for (var i = 0, n = docs.length; i < n; i++) {
-            if (f(word, docs[i]) > 0) {
+            if (frequency(word, docs[i]) > 0) {
                 count += 1;
             }
         }
@@ -69,6 +69,7 @@ module.exports = (function() {
     };
 
     return {
-        tfidf: tfidf
+        tfidf: tfidf,
+        frequency: frequency
     };
 })();

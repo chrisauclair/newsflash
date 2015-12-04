@@ -33,9 +33,15 @@ var App = (function() {
 
     function onConnection() {
         console.log("connection established");
+
         // trigger Rss feed reader
         var rss = new Rss();
-        rss.init();
+        rss.init().then(function(res) {
+            console.log(res);
+            // do something with newly saved articles
+        }, function(err) {
+            console.log(err);
+        });
     }
 
     return {

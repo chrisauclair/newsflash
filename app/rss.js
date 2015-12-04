@@ -2,71 +2,92 @@
 var xhr = require('node-xhr');
 var parseString = require('xml2js').parseString;
 var articleHelpers = require('./helpers/article');
+var Promise = require('node-promise').Promise;
+var all = require('node-promise').all;
 
 module.exports = (function(){
     // start with international news for now
     var feeds = ["http://www.npr.org/rss/rss.php?id=1009"];
 
     // TODO determine which params need to be passed to Rss object
-    var Rss = function(server) {
+    var Rss = function() {
 
-        this.server = server;
-
-        var parseBody = function(err, body) {
+        var parseBody = function(body) {
             console.log("parse body");
-            if (err) {
-                console.log(err.message);
-            } else {
-                for (var i = 0, n = body.rss.channel[0].item.length; i < n; i++) {
-                    var item = body.rss.channel[0].item[i];
-                    // console.log(item);
-                    parseItem(body.rss.channel[0].title[0], item);
-                }
+
+            var itemTotal = body.rss.channel[0].item.length;
+            var promises = createPromises(itemTotal);
+
+            for (var i = 0; i < itemTotal; i++) {
+                console.log("parse item");
+
+                var promise = promises[i];
+
+                var item = body.rss.channel[0].item[i];
+
+                var articleBody = {
+                    feed: body.rss.channel[0].title[0],
+                    url: item.link[0],
+                    pubDate: item.pubDate[0],
+                    description: item.description[0],
+                    content: item['content:encoded'][0],
+                    summary: "",
+                    location: ""
+                };
+
+                articleHelpers.postArticle(articleBody, promise);
             }
+
+            return all(promises);
         }
 
-        var parseItem = function(title, item) {
-            console.log("parse item");
-            var body = {
-                feed: title,
-                url: item.link[0],
-                pubDate: item.pubDate[0],
-                description: item.description[0],
-                content: item['content:encoded'][0],
-                summary: "",
-                location: ""
-            };
+        function createPromises(num) {
+            var promises = [];
+            for (var i = 0; i < num; i++) {
+                var promise = new Promise();
+                promises.push(promise);
+            }
 
-            postItem(body);
+            return promises;
         }
 
-        var postItem = function(body) {
-            articleHelpers.postArticle(body, function(err, success) {
+        var getRss = function(feed, promise) {
+            xhr.get({
+                url: feed,
+
+            }, function(err, res) {
                 if (err) {
-                    console.log(err);
-                    return;
-                }
+                    console.log(err.message);
+                    promise.reject(err);
+                } else {
+                    parseString(res.body, function(err, body) {
+                        if (err) {
+                            console.log("reject parse body: ", err);
+                            promise.reject(err);
+                            return;
+                        }
 
-                console.log(success);
+                        parseBody(body).then(function(res) {
+                            promise.resolve(res);
+                        }, function(err) {
+                            promise.reject(err);
+                        });
+                    });
+                }
             });
         }
 
         // public methods of object instance
         Rss.prototype.init = function() {
             console.log("rss init");
-            for(var i = 0, n = feeds.length; i < n; i++) {
 
-                xhr.get({
-                    url: feeds[i],
+            var promises = createPromises(feeds.length);
 
-                }, function(err, res) {
-                    if (err) {
-                        console.log(err.message);
-                    } else {
-                        parseString(res.body, parseBody);
-                    }
-                });
+            for (var i = 0, n = feeds.length; i < n; i++) {
+                getRss(feeds[i], promises[i]);
             }
+
+            return all(promises);
         }
     }
 

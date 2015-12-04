@@ -60,8 +60,7 @@ module.exports = (function() {
     }
 
     var tfidf = function(word, content, docs) {
-        if (word.length < 3 || ignore.indexOf(word) != -1) {
-            // console.log("below 3: ", word);
+        if (word.length < 3 || ignore.indexOf(word) !== -1) {
             return 0;
         }
 

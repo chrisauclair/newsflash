@@ -27,7 +27,7 @@ module.exports = (function() {
 
             var wordHash = [];
 
-            var words = Utils.splitWords(doc);
+            var words = _.uniq(Utils.splitWords(doc));
             for (var i = 0, n = words.length; i < n; i++) {
                 var word = words[i];
                 var tfidf = Tfidf.tfidf(word, doc, collection);

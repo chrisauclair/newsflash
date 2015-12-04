@@ -60,12 +60,16 @@ module.exports = (function(){
         var getRss = function(feed, promise) {
             xhr.get({
                 url: feed,
-
             }, function(err, res) {
                 if (err) {
                     console.log(err.message);
                     promise.reject(err);
                 } else {
+                    if (res.status.code !== 200) {
+                        console.log("Rss GET failed");
+                        promise.reject(res.body);
+                    }
+
                     parseString(res.body, function(err, body) {
                         if (err) {
                             console.log("reject parse body: ", err);

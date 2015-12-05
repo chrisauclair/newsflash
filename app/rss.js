@@ -9,6 +9,13 @@ module.exports = (function(){
     // start with international news for now
     var feeds = [
         "http://www.npr.org/rss/rss.php?id=1009",
+        "http://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml",
+        "http://rss.cnn.com/rss/edition_meast.rss",
+        "http://www.economist.com/sections/middle-east-africa/rss.xml",
+        "http://www.theguardian.com/world/middleeast/rss",
+        "http://feeds.washingtonpost.com/rss/world",
+        "http://www.ft.com/rss/home/middleeast",
+        "http://www.ipsnews.net/news/regional-categories/middle-east/feed/",
         "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"
     ];
 

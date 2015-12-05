@@ -2,10 +2,11 @@
 var express = require('express');
 var router = express.Router();
 var articleHelpers = require('./helpers/article');
+var Promise = require('node-promise').Promise;
 
 // middleware for requests
 router.use(function(req, res, next) {
-    // API authentication would go here
+    // TODO API authentication would go here
     next();
 });
 
@@ -17,11 +18,29 @@ router.get('/', function(req, res) {
 // create/update article
 router.route('/articles')
     .post(function(req, res) {
-        console.log("request: ", req.body);
-        articleHelpers.postArticle(req.body, function(err, response) {
-            console.log("callback: ", err, response);
-            if(err) return handleError(res, err);
+        console.log("new article POST: ", req.body);
+
+        var promise = new Promise();
+        articleHelpers.postArticle(req.body, promise);
+        promise.then(function(res) {
+            console.log("callback: ", res);
             res.send(response);
+        }, function(err) {
+            console.log("callback: ", err);
+            res.send(err);
+        });
+    })
+    .get(function(req, res) {
+        console.log("new articles GET");
+
+        var promise = new Promise();
+        articleHelpers.getArticles(promise);
+        promise.then(function(articles) {
+            console.log("callback: ", articles);
+            res.send(articles)
+        }, function(err) {
+            console.log("callback: ", err);
+            res.send(err);
         });
     });
 

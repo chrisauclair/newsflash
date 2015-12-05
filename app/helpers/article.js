@@ -3,9 +3,11 @@ var Article = require('../model/articles');
 var Feed = require('../model/feeds');
 var Keyword = require('../model/keywords');
 
+
 module.exports = (function() {
     var postArticle = function(body, promise) {
-        Article.findOne({url: body.url}).select('_id').exec().then(function(article) {
+        Article.findOne({url: body.url}).select('_id').exec(function(err, article) {
+            if (err) return handleError(err, promise);
             if (!article) {
 
                 var article = new Article();
@@ -37,12 +39,22 @@ module.exports = (function() {
         });
     };
 
+    var getArticles = function(promise) {
+        Article.find({'cluster_id': { $exists: true }}, null, { limit: 20}).populate({path: 'cluster_id', select: '_id'}).populate({path: 'feed_id', select: 'feed'}).sort({time: -1}).exec(function(err, res) {
+            if (err) return handleError(err, promise);
+
+            promise.resolve(res);
+        });
+    }
+
     function handleError(err, promise) {
+        console.log(err);
         if (promise) promise.reject(err);
     }
 
     return {
         postArticle: postArticle,
-        updateArticle: updateArticle
+        updateArticle: updateArticle,
+        getArticles: getArticles
     }
 })();

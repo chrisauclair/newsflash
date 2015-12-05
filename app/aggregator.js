@@ -46,7 +46,8 @@ module.exports = (function() {
 
             var similarityVectors = getCollectionSimilarity(collectionVectors);
 
-            var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', 1.4);
+            var similarityThreshold = 1.2;
+            var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', similarityThreshold);
 
             for (var i = 0; i < clusters.length; i++) {
                 if(clusters[i].size > 1) {

@@ -6,6 +6,9 @@ var clusterfck = require('clusterfck');
 var Utils = require('./utils/utils');
 var Tfidf = require('./helpers/tfidf');
 var Article = require('./model/articles');
+var Cluster = require('./model/clusters');
+var all = require('node-promise').all;
+var articleHelpers = require('./helpers/article');
 
 module.exports = (function() {
     var Aggregator = function() {
@@ -49,21 +52,54 @@ module.exports = (function() {
             var similarityThreshold = 1.2;
             var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', similarityThreshold);
 
-            for (var i = 0; i < clusters.length; i++) {
-                if(clusters[i].size > 1) {
-                    console.log("CLUSTER ---");
-                    var indexes = [];
-                    indexes = recurseCluster(clusters[i], similarityVectors, indexes);
+            saveClusters(clusters, similarityVectors).then(function(res) {
+                articleHelpers.cleanClusters();
+            }, function(err) {
+                console.log("cluster save error: ", err);
+            });
 
-                    for (j = 0; j < indexes.length; j++) {
-                        var doc = articleDocs[indexes[j]];
-                        console.log(doc.title);
-                    }
-
-                }
-
-            }
         };
+
+        var saveClusters = function(clusters, similarityVectors) {
+            var promises = Utils.createPromises(clusters.length);
+            for (var i = 0; i < clusters.length; i++) {
+                var promise = promises[i];
+                if(clusters[i].size > 1) {
+                    saveCluster(clusters[i], similarityVectors, promise);
+                } else {
+                    promise.resolve();
+                }
+            }
+
+            return all(promises);
+        }
+
+        var saveCluster = function(cluster, similarityVectors, promise) {
+            // console.log("CLUSTER ---");
+            var indexes = [];
+            indexes = recurseCluster(cluster, similarityVectors, indexes);
+
+            var clusterModel = new Cluster();
+            var articlePromises = Utils.createPromises(indexes.length);
+            for (j = 0; j < indexes.length; j++) {
+                var doc = articleDocs[indexes[j]];
+                var articlePromise = articlePromises[j];
+                clusterModel.articles.push(doc);
+                doc.cluster_id = clusterModel;
+                articleHelpers.updateArticle(doc, articlePromise);
+            }
+
+            // console.log(clusterModel.articles);
+
+            all(articlePromises).then(function(res) {
+                clusterModel.save(function(err) {
+                    if (err) console.log(err);
+                    promise.resolve(res);
+                });
+            }, function(err) {
+                promise.reject(err);
+            });
+        }
 
         var recurseCluster = function(cluster, vectors, indexes) {
             // console.log(cluster);

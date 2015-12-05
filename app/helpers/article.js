@@ -18,8 +18,7 @@ module.exports = (function() {
 
                     article.save(function(err){
                         if (err) return handleError(err, promise);
-                        promise.resolve({message: 'article saved'});
-
+                        if (promise) promise.resolve({message: 'article saved'});
                     });
                 });
             }
@@ -29,11 +28,26 @@ module.exports = (function() {
         });
     }
 
+    var updateArticle = function(body, promise) {
+        var updateBody = body;
+        Article.findOneAndUpdate({url: body.url}, {$set: updateBody}, {}, function(err, res) {
+            if (err) return handleError(err, promise);
+
+            if (promise) promise.resolve({message: 'article updated'});
+        });
+    };
+
+    var cleanClusters = function(body, promise) {
+
+    }
+
     function handleError(err, promise) {
-        promise.reject(err);
+        if (promise) promise.reject(err);
     }
 
     return {
-        postArticle: postArticle
+        postArticle: postArticle,
+        updateArticle: updateArticle,
+        cleanClusters: cleanClusters
     }
 })();

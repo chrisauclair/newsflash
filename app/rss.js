@@ -1,8 +1,8 @@
 // load dependencies
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var parseString = require('xml2js').parseString;
+var Utils = require('./utils/utils');
 var articleHelpers = require('./helpers/article');
-var Promise = require('node-promise').Promise;
 var all = require('node-promise').all;
 
 module.exports = (function(){
@@ -26,7 +26,7 @@ module.exports = (function(){
             console.log("parse body");
 
             var itemTotal = body.rss.channel[0].item.length;
-            var promises = createPromises(itemTotal);
+            var promises = Utils.createPromises(itemTotal);
 
             for (var i = 0; i < itemTotal; i++) {
                 console.log("parse item");
@@ -52,16 +52,6 @@ module.exports = (function(){
             }
 
             return all(promises);
-        }
-
-        function createPromises(num) {
-            var promises = [];
-            for (var i = 0; i < num; i++) {
-                var promise = new Promise();
-                promises.push(promise);
-            }
-
-            return promises;
         }
 
         var getRss = function(feed, promise) {
@@ -106,7 +96,7 @@ module.exports = (function(){
         Rss.prototype.init = function() {
             console.log("rss init");
 
-            var promises = createPromises(feeds.length);
+            var promises = Utils.createPromises(feeds.length);
 
             for (var i = 0, n = feeds.length; i < n; i++) {
                 getRss(feeds[i], promises[i]);

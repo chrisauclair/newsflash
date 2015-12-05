@@ -1,5 +1,6 @@
 // load dependencies
 var _ = require('lodash');
+var Promise = require('node-promise').Promise;
 
 module.exports = (function() {
 
@@ -15,8 +16,19 @@ module.exports = (function() {
         return arr;
     }
 
+    function createPromises(num) {
+        var promises = [];
+        for (var i = 0; i < num; i++) {
+            var promise = new Promise();
+            promises.push(promise);
+        }
+
+        return promises;
+    }
+
     return {
         splitWords: splitWords,
-        createNDimArray: createNDimArray
+        createNDimArray: createNDimArray,
+        createPromises: createPromises
     }
 })();

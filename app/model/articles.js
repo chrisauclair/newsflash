@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 
 var articleSchema = Schema({
     feed_id: { type: Schema.Types.ObjectId, ref: 'Feed' },
+    cluster_id: { type: Schema.Types.ObjectId, ref: 'Cluster'},
     url: {type: String, unique: true},
     title: String,
     summary: String,

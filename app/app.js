@@ -7,6 +7,8 @@ var Rss = require('./rss');
 var Aggregator = require('./aggregator');
 
 var App = (function() {
+    var rss = new Rss();
+    var aggregator = new Aggregator();
 
 	var init = function() {
 		// initialize dependencies
@@ -32,20 +34,26 @@ var App = (function() {
             .once('open', onConnection);
 	}
 
-    function onConnection() {
-        console.log("connection established");
-
-        // trigger Rss feed reader
-        var rss = new Rss();
+    function aggregate() {
         rss.init().then(function(res) {
             // console.log(res);
 
             // activate aggregator for saved articles
-            var aggregator = new Aggregator();
             aggregator.init();
         }, function(err) {
-            // console.log(err);
+            console.log("aggregator error: ", err)
         });
+    };
+
+    function onConnection() {
+        console.log("connection established");
+
+        // trigger Rss feed reader
+        aggregate();
+
+        timerId = setInterval(function() {
+            aggregate();
+        }, 600000);
     }
 
     return {

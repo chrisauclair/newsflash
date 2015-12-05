@@ -7,6 +7,8 @@ var Rss = require('./rss');
 var Aggregator = require('./aggregator');
 
 var App = (function() {
+
+    // instantiate Rss and Aggregator objects
     var rss = new Rss();
     var aggregator = new Aggregator();
 
@@ -27,13 +29,14 @@ var App = (function() {
         // init app
 		app.listen(port);
 
+        // set up mongoose connection
         mongoose.connect('mongodb://localhost/articles');
-
         mongoose.connection
             .on('error', console.error.bind(console, 'connection error:'))
             .once('open', onConnection);
 	}
 
+    // run aggregator
     function aggregate() {
         rss.init().then(function(res) {
             // console.log(res);
@@ -51,6 +54,7 @@ var App = (function() {
         // trigger Rss feed reader
         aggregate();
 
+        // set an interval to poll Rss feeds
         timerId = setInterval(function() {
             aggregate();
         }, 600000);

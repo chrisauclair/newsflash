@@ -15,10 +15,9 @@ module.exports = (function() {
 
         var keywordTotal = 4;
         var articleDocs;
-        var collection = [];
-        var collectionKeywords = [];
 
         var processDocs = function() {
+            var collectionKeywords = [];
             var collection = articleDocs.map(function(item) {
                 return item.title + " " + striptags(item.content);
             });

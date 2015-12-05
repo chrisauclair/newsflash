@@ -1,5 +1,5 @@
 // load dependencies
-var xhr = require('node-xhr');
+var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var parseString = require('xml2js').parseString;
 var articleHelpers = require('./helpers/article');
 var Promise = require('node-promise').Promise;
@@ -65,19 +65,18 @@ module.exports = (function(){
         }
 
         var getRss = function(feed, promise) {
-            xhr.get({
-                url: feed,
-            }, function(err, res) {
-                if (err) {
-                    console.log(err.message);
-                    promise.reject(err);
-                } else {
-                    if (res.status.code !== 200) {
-                        console.log("Rss GET failed");
-                        promise.reject(res.body);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    if (xhr.status !== 200 && xhr.status !== 302) {
+                        xhr.handleError("Invalid response: " + xhr.status);
+                        promise.reject(err);
+                        return;
                     }
 
-                    parseString(res.body, function(err, body) {
+                    parseString(this.responseText, function(err, body) {
                         if (err) {
                             console.log("reject parse body: ", err);
                             promise.reject(err);
@@ -89,9 +88,18 @@ module.exports = (function(){
                         }, function(err) {
                             promise.reject(err);
                         });
-                    });
+
+                    })
+
                 }
-            });
+
+                if (this.readyState === 2) {
+                                    }
+            }
+
+            xhr.open("GET", feed);
+            xhr.send();
+
         }
 
         // public methods of object instance

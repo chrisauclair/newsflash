@@ -53,11 +53,15 @@ module.exports = (function() {
             var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', similarityThreshold);
 
             saveClusters(clusters, similarityVectors).then(function(res) {
-                articleHelpers.cleanClusters();
+                cleanClusters();
             }, function(err) {
                 console.log("cluster save error: ", err);
             });
 
+        };
+
+        var cleanClusters = function() {
+            // TODO: logic for removing stale clusters
         };
 
         var saveClusters = function(clusters, similarityVectors) {
@@ -72,7 +76,7 @@ module.exports = (function() {
             }
 
             return all(promises);
-        }
+        };
 
         var saveCluster = function(cluster, similarityVectors, promise) {
             // console.log("CLUSTER ---");
@@ -95,11 +99,12 @@ module.exports = (function() {
                 clusterModel.save(function(err) {
                     if (err) console.log(err);
                     promise.resolve(res);
+                    console.log("cluster saved");
                 });
             }, function(err) {
                 promise.reject(err);
             });
-        }
+        };
 
         var recurseCluster = function(cluster, vectors, indexes) {
             // console.log(cluster);
@@ -117,7 +122,7 @@ module.exports = (function() {
             }
 
             return indexes;
-        }
+        };
 
 
 
@@ -131,7 +136,7 @@ module.exports = (function() {
             }
 
             return vectors;
-        }
+        };
 
         var getKeywords = function(doc, collection) {
             console.log("process article");
@@ -185,7 +190,7 @@ module.exports = (function() {
 
                 processDocs();
             });
-        }
+        };
     };
 
     return Aggregator;

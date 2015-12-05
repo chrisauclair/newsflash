@@ -37,17 +37,12 @@ module.exports = (function() {
         });
     };
 
-    var cleanClusters = function(body, promise) {
-
-    }
-
     function handleError(err, promise) {
         if (promise) promise.reject(err);
     }
 
     return {
         postArticle: postArticle,
-        updateArticle: updateArticle,
-        cleanClusters: cleanClusters
+        updateArticle: updateArticle
     }
 })();

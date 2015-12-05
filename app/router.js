@@ -18,6 +18,7 @@ router.get('/', function(req, res) {
 
 // create/get article
 router.route('/articles')
+    /*
     .post(function(req, res) {
         console.log("POST article: ", req.body);
 
@@ -30,7 +31,7 @@ router.route('/articles')
             console.log("callback: ", err);
             res.send(err);
         });
-    })
+    }) */
     .get(function(req, res) {
         console.log("GET articles");
 

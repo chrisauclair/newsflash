@@ -27,7 +27,7 @@ var App = (function() {
         // init app
 		app.listen(port);
 
-        mongoose.connect('mongodb://localhost/test');
+        mongoose.connect('mongodb://localhost/articles');
 
         mongoose.connection
             .on('error', console.error.bind(console, 'connection error:'))

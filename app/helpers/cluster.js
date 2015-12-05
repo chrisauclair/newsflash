@@ -8,7 +8,7 @@ module.exports = (function() {
         // .populate({feed: 'feed_id', select: 'feed'})
         Cluster.findById(id).populate({path: 'articles', populate: {path: 'feed_id'}}).exec(function(err, res) {
             if (err) return handleError(err, promise);
-            console.log(res);
+
             promise.resolve(res);
         });
     }

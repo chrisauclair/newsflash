@@ -18,6 +18,7 @@
   "homepage": "https://github.com/chrisauclair/newsflash#readme",
   "devDependencies": {
     "body-parser": "^1.14.1",
+    "clusterfck": "^0.6.0",
     "compute-cosine-similarity": "^1.0.0",
     "express": "^4.13.3",
     "lodash": "^3.10.1",

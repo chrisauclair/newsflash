@@ -2,6 +2,7 @@
 var _ = require('lodash');
 var striptags = require('striptags');
 var similarity = require('compute-cosine-similarity');
+var clusterfck = require('clusterfck');
 var Utils = require('./utils/utils');
 var Tfidf = require('./helpers/tfidf');
 var Article = require('./model/articles');
@@ -45,8 +46,43 @@ module.exports = (function() {
 
             var similarityVectors = getCollectionSimilarity(collectionVectors);
 
-            console.log(similarityVectors);
+            var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', 1.4);
+
+            for (var i = 0; i < clusters.length; i++) {
+                if(clusters[i].size > 1) {
+                    console.log("CLUSTER ---");
+                    var indexes = [];
+                    indexes = recurseCluster(clusters[i], similarityVectors, indexes);
+
+                    for (j = 0; j < indexes.length; j++) {
+                        var doc = articleDocs[indexes[j]];
+                        console.log(doc.title);
+                    }
+
+                }
+
+            }
         };
+
+        var recurseCluster = function(cluster, vectors, indexes) {
+            // console.log(cluster);
+            for (var prop in cluster) {
+                if (cluster.hasOwnProperty(prop)) {
+
+                    // console.log(prop);
+                    if (prop === "value") {
+                        indexes.push(vectors.indexOf(cluster[prop]));
+                        // console.log(clusters[prop]);
+                    } else if (prop === "left" || prop === "right") {
+                        indexes = recurseCluster(cluster[prop], vectors, indexes);
+                    }
+                }
+            }
+
+            return indexes;
+        }
+
+
 
         var getCollectionSimilarity = function(collectionVectors) {
             var length = collectionVectors.length;

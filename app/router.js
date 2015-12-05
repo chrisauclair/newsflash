@@ -7,7 +7,7 @@ var Promise = require('node-promise').Promise;
 
 // middleware for requests
 router.use(function(req, res, next) {
-    // TODO API authentication would go here
+    // TODO API authentication for a POST would go here
     next();
 });
 
@@ -16,9 +16,10 @@ router.get('/', function(req, res) {
     res.json({ message: 'api test' });
 });
 
-// create/get article
+// routes for articles
 router.route('/articles')
     /*
+    // create article (for a seperate RSS/aggregator application)
     .post(function(req, res) {
         console.log("POST article: ", req.body);
 
@@ -32,11 +33,14 @@ router.route('/articles')
             res.send(err);
         });
     }) */
+
+    // get most recent articles
+    // TODO: accept search, sort, and limit criteria
     .get(function(req, res) {
         console.log("GET articles");
 
         var promise = new Promise();
-        articleHelpers.getArticles({'cluster_id': { $exists: true }}, promise);
+        articleHelpers.getArticles(promise);
         promise.then(function(articles) {
             console.log("callback: ", articles);
             res.send(articles)
@@ -46,8 +50,10 @@ router.route('/articles')
         });
     });
 
-// clusters
+// routes for clusters
 router.route('/clusters/:cluster_id')
+
+    // get cluster by the cluster id
     .get(function(req, res) {
         console.log("GET cluster for cluster_id");
 
@@ -62,6 +68,7 @@ router.route('/clusters/:cluster_id')
         });
     });
 
+// handle any error responses
 function handleError(res, err) {
     res.send(err);
 }

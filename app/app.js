@@ -36,18 +36,16 @@ var App = (function() {
         console.log("connection established");
 
         // trigger Rss feed reader
-        /*
         var rss = new Rss();
         rss.init().then(function(res) {
-            console.log(res);
-            // do something with newly saved articles
-        }, function(err) {
-            console.log(err);
-        });
-*/
-        var aggregator = new Aggregator();
-        aggregator.init();
+            // console.log(res);
 
+            // activate aggregator for saved articles
+            var aggregator = new Aggregator();
+            aggregator.init();
+        }, function(err) {
+            // console.log(err);
+        });
     }
 
     return {

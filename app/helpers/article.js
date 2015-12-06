@@ -57,7 +57,7 @@ module.exports = (function() {
 
     // handle any errors
     function handleError(err, promise) {
-        console.log(err);
+        // console.log(err);
         if (promise) promise.reject(err);
     }
 

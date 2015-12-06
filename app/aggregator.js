@@ -104,7 +104,7 @@ module.exports = (function() {
         };
 
         var saveCluster = function(cluster, similarityVectors, promise) {
-            // console.log("CLUSTER ---");
+            console.log("CLUSTER:");
 
             // get index of article doc by similarity vectors
             var indexes = [];
@@ -127,14 +127,17 @@ module.exports = (function() {
 
                 // update article
                 articleHelpers.updateArticle(doc, articlePromise);
+
+                // print to console
+                console.log("  " + doc.title);
             }
 
             // once articles are update, create new clusters
             all(articlePromises).then(function(res) {
                 clusterModel.save(function(err) {
                     if (err) console.log(err);
+
                     promise.resolve(res);
-                    console.log("cluster saved");
                 });
             }, function(err) {
                 promise.reject(err);
@@ -181,7 +184,7 @@ module.exports = (function() {
          * Algorithm employed to weight keywords is term frequency--inverse document frequency
          */
         var getKeywords = function(doc, collection) {
-            console.log("process article");
+            // console.log("process article");
 
             // associative array of words and their frequency
             var wordHash = [];
@@ -230,6 +233,8 @@ module.exports = (function() {
 
         // initialize article aggregator
         Aggregator.prototype.init = function() {
+            console.log("aggregator init");
+
             Article.find().exec(function(err, docs) {
                 if (err) return handleError(err);
 

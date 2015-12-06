@@ -2,9 +2,10 @@
   "name": "newsflash",
   "version": "1.0.0",
   "description": "CS50 final project news aggregator.",
-  "main": "app.js",
+  "main": "app/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app/app.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "lodash": "^3.10.1",
     "mongoose": "^4.2.8",
     "node-promise": "^0.5.12",
+    "sentence-tokenizer": "0.0.7",
     "striptags": "^2.0.4",
     "xml2js": "^0.4.15",
     "xmlhttprequest": "^1.8.0"

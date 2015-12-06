@@ -21,8 +21,6 @@ router.route('/articles')
     /*
     // create article (for a seperate RSS/aggregator application)
     .post(function(req, res) {
-        console.log("POST article: ", req.body);
-
         var promise = new Promise();
         articleHelpers.postArticle(req.body, promise);
         promise.then(function(res) {
@@ -37,15 +35,27 @@ router.route('/articles')
     // get most recent articles
     // TODO: accept search, sort, and limit criteria
     .get(function(req, res) {
-        console.log("GET articles");
-
         var promise = new Promise();
         articleHelpers.getArticles(promise);
         promise.then(function(articles) {
-            console.log("callback: ", articles);
+            // console.log("callback: ", articles);
             res.send(articles)
         }, function(err) {
-            console.log("callback: ", err);
+            // console.log("callback: ", err);
+            res.send(err);
+        });
+    });
+
+// routes for articles by id
+router.route('/articles/:article_id')
+    .get(function(req, res) {
+        var promise = new Promise();
+        articleHelpers.getArticle(req.params.article_id, promise)
+        promise.then(function(article) {
+            // console.log("callback: ", article);
+            res.send(article);
+        }, function(err) {
+            // console.log("callback: ", err);
             res.send(err);
         });
     });
@@ -55,15 +65,13 @@ router.route('/clusters/:cluster_id')
 
     // get cluster by the cluster id
     .get(function(req, res) {
-        console.log("GET cluster for cluster_id");
-
         var promise = new Promise();
         clusterHelpers.getCluster(req.params.cluster_id, promise);
         promise.then(function(cluster) {
-            console.log("callback: ", cluster);
+            // console.log("callback: ", cluster);
             res.send(cluster);
         }, function(err) {
-            console.log("callback: ", err);
+            // console.log("callback: ", err);
             res.send(err);
         });
     });

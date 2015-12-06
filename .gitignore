@@ -27,4 +27,5 @@ build/Release
 node_modules
 
 # MongoDB files
-db/
+db/*
+!db/.keep

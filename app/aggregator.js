@@ -3,11 +3,12 @@ var _ = require('lodash');
 var striptags = require('striptags');
 var similarity = require('compute-cosine-similarity');
 var clusterfck = require('clusterfck');
+var all = require('node-promise').all;
+var Tokenizer = require('sentence-tokenizer');
 var Utils = require('./utils/utils');
 var Tfidf = require('./helpers/tfidf');
 var Article = require('./model/articles');
 var Cluster = require('./model/clusters');
-var all = require('node-promise').all;
 var articleHelpers = require('./helpers/article');
 
 module.exports = (function() {
@@ -21,6 +22,8 @@ module.exports = (function() {
 
             // collect article content to parse for keywords
             var collection = articleDocs.map(function(item) {
+
+                // combine title and content for keyword search
                 return item.title + " " + striptags(item.content);
             });
 
@@ -34,6 +37,9 @@ module.exports = (function() {
             collectionKeywords = _.uniq(_.flattenDeep(collectionKeywords).map(function(item) {
                 return item.toLowerCase();
             }));
+
+            // get article summaries
+            getArticleSummaries(collectionKeywords);
 
             /*
              * Iterate over each article, then each keyword
@@ -160,6 +166,111 @@ module.exports = (function() {
 
             return indexes;
         };
+
+        // get article summaries
+        var getArticleSummaries = function(keywords) {
+            var tokenizer = new Tokenizer();
+
+            // TODO: add common abbreviations to database
+            var abbreviations = [
+                "I.O.U.",
+                "M.D.",
+                "N.B.",
+                "P.O.",
+                "U.K.",
+                "U.S.",
+                "U.S.A.",
+                "P.S.",
+                "Mr.",
+                "Ms.",
+                "Mrs.",
+                "Dr.",
+                "Jr.",
+                "Lt.",
+                "Gen.",
+                "Sgt.",
+                "Cpl.",
+                "Pvt.",
+                "Brig.",
+                "Col.",
+                "Maj.",
+                "Jan.",
+                "Feb.",
+                "Mar.",
+                "Apr.",
+                "Aug.",
+                "Sept.",
+                "Oct.",
+                "Nov.",
+                "Dec."
+            ];
+
+            articleDocs.forEach(function(doc, i, docs) {
+
+                var content = striptags(doc.content);
+                var summary = "";
+                if (content) {
+                    // create ranked array of sentences
+                    var ranked = [];
+                    var rankedMax = 4;
+                    var rankedHighest = 0;
+                    var rankedStart = 0;
+
+                    // tokenize sentences
+                    tokenizer.setEntry(content);
+                    var tokens = tokenizer.getSentences();
+
+                    // iterate through each token to fix abbreviations and rank
+                    var length = tokens.length;
+                    tokens.forEach(function(token, i, tokens) {
+                        var rank = 0;
+
+                        // split token into basic words and check for abbreviations
+                        var words = token.split(" ");
+                        if (abbreviations.indexOf(words[words.length - 1]) !== -1) {
+                            if (i < (length - 1)) {
+
+                                // move content to next token
+                                tokens[i + 1] = tokens[i] + " " + tokens[i + 1];
+                                tokens[i] = "";
+                                token = "";
+                            }
+                        }
+
+                        // rank for each keyword across all documents
+                        keywords.forEach(function(keyword) {
+                            rank += Tfidf.frequency(keyword, content);
+                        });
+
+                        // update position in array based on rank
+                        // logic assumes earlier sentences are still more important
+                        if (token) {
+                            if (rank > rankedHighest) {
+                                rankedHighest = rank;
+                                ranked.splice(rankedStart, 0, token);
+                                rankedStart++;
+                            } else {
+                                ranked.push(token);
+                            }
+                        }
+                    });
+
+                    // determine max length
+                    if (ranked < rankedMax) {
+                        rankedMax = ranked.length;
+                    }
+
+                    // keep only the top sentences
+                    ranked = ranked.slice(0, rankedMax);
+
+                    // join as a string
+                    summary = ranked.join(" ... ");
+                }
+
+                // add to doc for database save
+                doc.summary = summary;
+            });
+        }
 
         // determine cosine similartiy of each document in collection based on keyword vectors for each
         var getCollectionSimilarity = function(keywordVectors) {

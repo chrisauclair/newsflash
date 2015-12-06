@@ -8,6 +8,10 @@ var Aggregator = require('./aggregator');
 
 var App = (function() {
 
+    // instantiate Rss and Aggregator objects
+    var rss = new Rss();
+    var aggregator = new Aggregator();
+
 	var init = function() {
 		// initialize dependencies
 		var app = express();
@@ -25,29 +29,35 @@ var App = (function() {
         // init app
 		app.listen(port);
 
-        mongoose.connect('mongodb://localhost/test');
-
+        // set up mongoose connection
+        mongoose.connect('mongodb://localhost/articles');
         mongoose.connection
             .on('error', console.error.bind(console, 'connection error:'))
             .once('open', onConnection);
 	}
 
+    // run aggregator
+    function aggregate() {
+        rss.init().then(function(res) {
+            // console.log(res);
+
+            // activate aggregator for saved articles
+            aggregator.init();
+        }, function(err) {
+            console.log("aggregator error: ", err)
+        });
+    };
+
     function onConnection() {
         console.log("connection established");
 
         // trigger Rss feed reader
-        /*
-        var rss = new Rss();
-        rss.init().then(function(res) {
-            console.log(res);
-            // do something with newly saved articles
-        }, function(err) {
-            console.log(err);
-        });
-*/
-        var aggregator = new Aggregator();
-        aggregator.init();
+        aggregate();
 
+        // set an interval to poll Rss feeds
+        timerId = setInterval(function() {
+            aggregate();
+        }, 600000);
     }
 
     return {

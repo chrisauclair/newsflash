@@ -55,8 +55,6 @@ router.route('/clusters/:cluster_id')
 
     // get cluster by the cluster id
     .get(function(req, res) {
-        console.log("GET cluster for cluster_id");
-
         var promise = new Promise();
         clusterHelpers.getCluster(req.params.cluster_id, promise);
         promise.then(function(cluster) {

@@ -11,7 +11,7 @@ Clone a copy of this repository, then install the necessary software.
 - [Node.js](https://nodejs.org/en/)
 - [MongoDB](https://docs.mongodb.org/manual/installation/)
 
-### Helpful software.
+### Helpful software
 - [Postman](https://www.getpostman.com/)
 - [MongoHub](https://github.com/jeromelebel/MongoHub-Mac)
 

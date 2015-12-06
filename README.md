@@ -36,18 +36,78 @@ localhost:8080/api
 
 ### GET /articles
 
-`GET http://localhost:8080/api/articles`
+Example: `GET http://localhost:8080/api/articles`
 
 Get a list of the most recent articles from the feed. The test feed is pre-filtered for world news (keyword filtering was not implemented due to the small initial sample size).
 
+Response:
+```
+[
+	{
+		"title": "Article title",
+		"feed_id": {
+			"feed": "RSS Service Name"
+		},
+		"summary": "Top 4 sentences from article.",
+		"content": "Full HTML content of article.",
+		"description": "Short description of article.",
+		"cluster_id": {
+			"_id": "ID of cluster"
+		}
+	},
+	{
+		...
+	}
+]
+```
+
 ### GET /articles/:article_id
 
-`GET http://localhost:8080/api/articles/56639032ca0b7f6720cc2a79`
+Example: `GET http://localhost:8080/api/articles/56639032ca0b7f6720cc2a79`
 
 Get a single article by its id.
 
+Response:
+```
+{
+	"title": "Article title",
+	"feed_id": {
+		"feed": "RSS Service Name"
+	},
+	"summary": "Top 4 sentences from article.",
+	"content": "Full HTML content of article.",
+	"description": "Short description of article.",
+	"cluster_id": {
+		"_id": "ID of cluster"
+	}
+}
+```
+
 ### GET /clusters/:cluster_id
 
-`GET http://localhost:8080/api/clusters/56636d967cbc612a1b943c32`
+Example: `GET http://localhost:8080/api/clusters/56636d967cbc612a1b943c32`
 
 Get a list of all articles in a clusters. Clusters are stored indefinitely right now, so even if an article is knocked out of a cluster, it can still show similar content if it gets requested. The `cluster_id` can be obtained through an article record.
+
+Response:
+```
+{
+	"articles": [
+		{
+			"title": "Article title",
+			"feed_id": {
+				"feed": "RSS Service Name"
+			},
+			"summary": "Top 4 sentences from article.",
+			"content": "Full HTML content of article.",
+			"description": "Short description of article.",
+			"cluster_id": {
+				"_id": "ID of cluster"
+			}
+		},
+		{
+			...
+		}
+	]
+}
+```

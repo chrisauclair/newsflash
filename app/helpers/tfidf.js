@@ -47,7 +47,7 @@ module.exports = (function() {
 
     // calculate inverse document frequency
     function idf(word, docs) {
-        var idf = Math.log(docs.length) / containing(word, docs);
+        var idf = Math.log((docs.length) / documentCount(word, docs));
 
         return idf;
     };

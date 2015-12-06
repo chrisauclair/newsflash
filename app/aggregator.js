@@ -213,7 +213,7 @@ module.exports = (function() {
                     // create ranked array of sentences
                     var ranked = [];
                     var rankedMax = 4;
-                    var rankedHighest = 0;
+                    var rankedPrevious = 0;
                     var rankedStart = 0;
 
                     // tokenize sentences
@@ -245,18 +245,18 @@ module.exports = (function() {
                         // update position in array based on rank
                         // logic assumes earlier sentences are still more important
                         if (token) {
-                            if (rank > rankedHighest) {
-                                rankedHighest = rank;
+                            if (rank > rankedPrevious) {
                                 ranked.splice(rankedStart, 0, token);
                                 rankedStart++;
                             } else {
                                 ranked.push(token);
                             }
+                            rankedPrevious = rank;
                         }
                     });
 
                     // determine max length
-                    if (ranked < rankedMax) {
+                    if (ranked < rankedMax || i === 0) {
                         rankedMax = ranked.length;
                     }
 

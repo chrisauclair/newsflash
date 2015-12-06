@@ -40,7 +40,7 @@ Example: `GET http://localhost:8080/api/articles`
 
 Get a list of the most recent articles from the feed. The test feed is pre-filtered for world news (keyword filtering was not implemented due to the small initial sample size).
 
-Response:
+#### Response:
 ```
 [
 	{
@@ -67,7 +67,7 @@ Example: `GET http://localhost:8080/api/articles/56639032ca0b7f6720cc2a79`
 
 Get a single article by its id.
 
-Response:
+#### Response:
 ```
 {
 	"title": "Article title",
@@ -89,7 +89,7 @@ Example: `GET http://localhost:8080/api/clusters/56636d967cbc612a1b943c32`
 
 Get a list of all articles in a clusters. Clusters are stored indefinitely right now, so even if an article is knocked out of a cluster, it can still show similar content if it gets requested. The `cluster_id` can be obtained through an article record.
 
-Response:
+#### Response:
 ```
 {
 	"articles": [

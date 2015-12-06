@@ -48,7 +48,20 @@ module.exports = (function() {
     // get an article in the database
     // TODO: pass in search and options as arguments
     var getArticles = function(promise) {
-        Article.find({'cluster_id': { $exists: true }}, null, { limit: 20}).populate({path: 'cluster_id', select: '_id'}).populate({path: 'feed_id', select: 'feed'}).sort({time: -1}).exec(function(err, res) {
+        Article.find({'cluster_id': { $exists: true }}, null, { limit: 20})
+            .populate({path: 'cluster_id', select: '_id'})
+            .populate({path: 'feed_id', select: 'feed'})
+            .sort({time: -1})
+            .exec(function(err, res) {
+                if (err) return handleError(err, promise);
+
+                promise.resolve(res);
+            });
+    }
+
+    // get a single article by id
+    var getArticle = function(id, promise) {
+        Article.findById(id).populate({path: 'cluster_id', select: '_id'}).populate({path: 'feed_id', select: 'feed'}).exec(function(err, res) {
             if (err) return handleError(err, promise);
 
             promise.resolve(res);
@@ -64,6 +77,7 @@ module.exports = (function() {
     return {
         postArticle: postArticle,
         updateArticle: updateArticle,
-        getArticles: getArticles
+        getArticles: getArticles,
+        getArticle: getArticle
     }
 })();

@@ -4,6 +4,7 @@ var Promise = require('node-promise').Promise;
 
 module.exports = (function() {
 
+    // function for splitting strings into individual words
     var splitWords = function(content) {
         return _.words(content);
     }
@@ -16,6 +17,7 @@ module.exports = (function() {
         return arr;
     }
 
+    // create array of promises for single functions waiting on multiple async calls
     function createPromises(num) {
         var promises = [];
         for (var i = 0; i < num; i++) {

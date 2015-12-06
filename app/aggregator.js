@@ -13,44 +13,68 @@ var articleHelpers = require('./helpers/article');
 module.exports = (function() {
     var Aggregator = function() {
 
+        // global object members
         var keywordTotal = 4;
         var articleDocs;
 
         var processDocs = function() {
-            var collectionKeywords = [];
+
+            // collect article content to parse for keywords
             var collection = articleDocs.map(function(item) {
                 return item.title + " " + striptags(item.content);
             });
 
+            // get keywords for each collection item
+            var collectionKeywords = [];
             for (var i = 0, n = collection.length; i < n; i++) {
                 collectionKeywords.push(getKeywords(collection[i], collection));
             }
 
+            // flatten keywords, keep only unique items, and set to lowercase
             collectionKeywords = _.uniq(_.flattenDeep(collectionKeywords).map(function(item) {
                 return item.toLowerCase();
             }));
 
-            collectionVectors = [];
+            /*
+             * Iterate over each article, then each keyword
+             * Identify which keywords in a document are relevant across the whole collection
+             * Algorithm employed to weight keywords is term frequency--inverse document frequency
+             */
+            keywordVectors = [];
             for (var i = 0, n = collection.length; i < n; i++) {
+
+                // vectors for the other axis
                 var vectors = [];
+
+                // iterate through
                 var doc = collection[i];
                 for (var j = 0, x = collectionKeywords.length; j < x; j++) {
-                    var keyword = collectionKeywords[j];
+
+                    // default value
                     var vector = 0;
+
+                    // get TF-IDF of keyword in document
+                    var keyword = collectionKeywords[j];
                     if (Tfidf.frequency(keyword, doc) > 0) {
                         vector = Tfidf.tfidf(keyword, doc, collection);
                     }
 
+                    // add to keyword axis
                     vectors.push(vector);
                 }
-                collectionVectors.push(vectors);
+                // add to collection axis
+                keywordVectors.push(vectors);
             }
 
-            var similarityVectors = getCollectionSimilarity(collectionVectors);
+            // get a grid of the cosine similarity of keyword vector grid
+            var similarityVectors = getCollectionSimilarity(keywordVectors);
 
+            // identify clusters through hierarchical clustering
+            // TODO: find a better ideal threshold
             var similarityThreshold = 1.2;
             var clusters = clusterfck.hcluster(similarityVectors, 'euclidean', 'average', similarityThreshold);
 
+            // save clusters (and their article ids) to database
             saveClusters(clusters, similarityVectors).then(function(res) {
                 cleanClusters();
             }, function(err) {
@@ -67,6 +91,8 @@ module.exports = (function() {
             var promises = Utils.createPromises(clusters.length);
             for (var i = 0; i < clusters.length; i++) {
                 var promise = promises[i];
+
+                // if cluster is bigger than 1, save to database
                 if(clusters[i].size > 1) {
                     saveCluster(clusters[i], similarityVectors, promise);
                 } else {
@@ -79,21 +105,31 @@ module.exports = (function() {
 
         var saveCluster = function(cluster, similarityVectors, promise) {
             // console.log("CLUSTER ---");
+
+            // get index of article doc by similarity vectors
             var indexes = [];
             indexes = recurseCluster(cluster, similarityVectors, indexes);
 
+            // save cluster to database
             var clusterModel = new Cluster();
             var articlePromises = Utils.createPromises(indexes.length);
-            for (j = 0; j < indexes.length; j++) {
-                var doc = articleDocs[indexes[j]];
-                var articlePromise = articlePromises[j];
+
+            // get article doc from index
+            for (i = 0; i < indexes.length; i++) {
+                var doc = articleDocs[indexes[i]];
+                var articlePromise = articlePromises[i];
+
+                // add article to cluster model
                 clusterModel.articles.push(doc);
+
+                // add cluster_id to article
                 doc.cluster_id = clusterModel;
+
+                // update article
                 articleHelpers.updateArticle(doc, articlePromise);
             }
 
-            // console.log(clusterModel.articles);
-
+            // once articles are update, create new clusters
             all(articlePromises).then(function(res) {
                 clusterModel.save(function(err) {
                     if (err) console.log(err);
@@ -105,15 +141,14 @@ module.exports = (function() {
             });
         };
 
+        // recursively get article index for each node in cluster
         var recurseCluster = function(cluster, vectors, indexes) {
-            // console.log(cluster);
+
+            // iterate through node properties
             for (var prop in cluster) {
                 if (cluster.hasOwnProperty(prop)) {
-
-                    // console.log(prop);
                     if (prop === "value") {
                         indexes.push(vectors.indexOf(cluster[prop]));
-                        // console.log(clusters[prop]);
                     } else if (prop === "left" || prop === "right") {
                         indexes = recurseCluster(cluster[prop], vectors, indexes);
                     }
@@ -123,23 +158,32 @@ module.exports = (function() {
             return indexes;
         };
 
+        // determine cosine similartiy of each document in collection based on keyword vectors for each
+        var getCollectionSimilarity = function(keywordVectors) {
+            var length = keywordVectors.length;
 
-
-        var getCollectionSimilarity = function(collectionVectors) {
-            var length = collectionVectors.length;
+            // create new n-dimensional array
             var vectors = Utils.createNDimArray([length, length]);
+
+            // iterate through each axis of new vector grid and calculate similarity of keywords
             for (var i = 0; i < length; i++) {
                 for (var j = 0; j < length; j++) {
-                    vectors[i][j] = similarity(collectionVectors[i], collectionVectors[j]);
+                    vectors[i][j] = similarity(keywordVectors[i], keywordVectors[j]);
                 }
             }
 
             return vectors;
         };
 
+        /*
+         * Identify they key words in each document based on frequency
+         * Identify which words in a document are relevant across the whole collection
+         * Algorithm employed to weight keywords is term frequency--inverse document frequency
+         */
         var getKeywords = function(doc, collection) {
             console.log("process article");
 
+            // associative array of words and their frequency
             var wordHash = [];
 
             var words = _.uniq(Utils.splitWords(doc));
@@ -157,8 +201,10 @@ module.exports = (function() {
             return keywords;
         };
 
+        // iterate over hash to pick the most frequent words
         function identifyKeywords(wordHash) {
 
+            // sort by frequency, remove frequency, slice first items
             var keywords = wordHash.sort(function(a, b) {
                 if (a.freq > b.freq) {
                     return -1;
@@ -172,21 +218,25 @@ module.exports = (function() {
                 return obj.word;
             }).slice(0, keywordTotal);
 
-            console.log("keywords: ", keywords);
+            // console.log("keywords: ", keywords);
 
             return keywords;
         }
 
+        // handle errors
         var handleError = function(err) {
             console.log("process article error: ", err);
         };
 
+        // initialize article aggregator
         Aggregator.prototype.init = function() {
             Article.find().exec(function(err, docs) {
                 if (err) return handleError(err);
 
+                // set global variables
                 articleDocs = docs;
 
+                // process all docs
                 processDocs();
             });
         };
